@@ -24,7 +24,8 @@ config_object['baseparams'] = {
     'gname': 'None',
     'glong': '361',
     'glat': '0',
-    'regionsize': '0'
+    'regionsize': '0',
+    'catalogs': 'WISE 3.4,WISE 12,WISE 22'
 }
 
 config_object['Allskyparams'] = {
@@ -39,7 +40,8 @@ config_object['Allskyparams'] = {
     'gname': 'None',
     'glong': '361',
     'glat': '0',
-    'regionsize': '0'
+    'regionsize': '0',
+    'catalogs': 'WISE 3.4,WISE 12,WISE 22'
 }
 
 config_object['knownregion'] = {
@@ -54,7 +56,9 @@ config_object['knownregion'] = {
     'gname': 'G297.651-00.973',
     'glong': '361',
     'glat': '0',
-    'regionsize': '0'
+    'regionsize': '0',
+    'catalogs': 'WISE 3.4,WISE 12,WISE 22' # Make the known region catalog
+    # options fixed
 }
 
 config_object['coords'] = {
@@ -70,7 +74,8 @@ config_object['coords'] = {
     # l [###.###],b [+/-##.###]
     'glong': '087.000', 
     'glat': '+00.500',
-    'regionsize': '0.3'
+    'regionsize': '0.3',
+    'catalogs': 'WISE 3.4,WISE 12,WISE 22'
 }
 
 #Write the above sections to config.ini file

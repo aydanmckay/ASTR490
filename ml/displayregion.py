@@ -40,75 +40,6 @@ def get_wise_catalog(db):
             cur.fetchall(), columns=[d[0] for d in cur.description])
     return data
 
-def get_wise_images(gname, ra, dec, size, outdir):
-    """
-    Return the WISE 3.4, 12, and 22 micron data for a given sky
-    position.
-
-    Inputs:
-        gname :: string
-            Source name. Images are saved to
-            f"{outdir}/{gname}_wise_3.4.fits", etc.
-        ra, dec :: scalars (deg)
-            Cental sky position (J2000)
-        size :: scalar (deg)
-            Image cutout size
-        outdir :: string
-            Directory where downloaded FITS images are saved
-
-    Returns: wise_3, wise_12, wise_22
-        wise_3, wise_12, wise_22 :: astropy.fits.HDU
-            The WISE 3.4, 12, and 22 micron FITS HDUs
-    """
-    if not os.path.exists(outdir):
-        os.mkdir(outdir)
-
-    # SkyView occasionally fails, so we attempt multiple downloads
-    success = False
-    count = 0
-    while not success:
-        if count > 0:
-            # Due to bug in astroquery.SkyView, a failed download is
-            # cached and the cache directory must be deleted before
-            # a new attempt is made
-            shutil.rmtree(SkyView.cache_location)
-            os.mkdir(SkyView.cache_location)
-        if count > 10:
-            raise ValueError(
-                f"Exceeded download attempt limit for {gname}")
-        try:
-            # WISE 3.4 micron
-            fname = os.path.join(outdir, f"{gname}_wise_3.4.fits")
-            images = SkyView.get_images(
-                position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                pixels=1024, width=size*u.deg, height=size*u.deg, survey="WISE 3.4")
-            wise_3_hdu = images[0][0]
-            wise_3_hdu.writeto(fname, overwrite=True)
-
-            # WISE 12 micron
-            fname = os.path.join(outdir, f"{gname}_wise_12.fits")
-            images = SkyView.get_images(
-                position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                pixels=1024, width=size*u.deg, height=size*u.deg, survey="WISE 12")
-            wise_12_hdu = images[0][0]
-            wise_12_hdu.writeto(fname, overwrite=True)
-
-            # WISE 22 micron
-            fname = os.path.join(outdir, f"{gname}_wise_22.fits")
-            images = SkyView.get_images(
-                position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                pixels=1024, width=size*u.deg, height=size*u.deg, survey="WISE 22")
-            wise_22_hdu = images[0][0]
-            wise_22_hdu.writeto(fname, overwrite=True)
-
-            # success
-            success = True
-        except:
-            count += 1
-            time.sleep(1)
-            
-    return wise_3_hdu, wise_12_hdu, wise_22_hdu
-
 def getcoords(coords):
     """
     Convets user inputted galactic coordinates to RA and Dec.
@@ -161,7 +92,7 @@ def scale(data, vmin, vmax):
     data = data / np.nanmax(data)
     return data
 
-def knownreg(db, outfile, gname):
+def knownreg(db, outfile, catalogs, gname):
     # Get the WISE Catalog data
     wise_catalog = get_wise_catalog(db)
 
@@ -172,8 +103,8 @@ def knownreg(db, outfile, gname):
     row = row.iloc[0]
     # image size is three times larger than source radius
     imsize = 3.0 * row["radius"]/3600.0
-    wise_3, wise_12, wise_22 = get_wise_images(
-        gname, row["ra"], row["dec"], imsize, outfile)
+    wise_3, wise_12, wise_22 = get_images(
+        gname, row["ra"], row["dec"], imsize, catalogs, outfile)
 
     # Clip and scale infrared data
     image_r = scale(wise_22.data, 10.0, 99.0)
@@ -198,7 +129,7 @@ def knownreg(db, outfile, gname):
     fig.savefig(outfile+gname+'_wise.pdf', bbox_inches="tight")
     plt.close(fig)
     
-def auto_get_wise_images(gname, ra, dec, w, h, outdir):
+def get_images(gname, ra, dec, size, catalogs, outdir):
     """
     Return the WISE 3.4, 12, and 22 micron data for a given sky
     position. Automatic version.
@@ -235,29 +166,18 @@ def auto_get_wise_images(gname, ra, dec, w, h, outdir):
             print(f"Exceeded download attempt limit for {gname}")
             return 'fail','fail','fail'
         try:
-            # WISE 3.4 micron
-            #  = osfname.path.join(outdir, f"{gname}_wise_3.4.fits")
-            images = SkyView.get_images(
-                position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                pixels=1024, width=w*u.deg, height=h*u.deg, survey="WISE 3.4")
-            wise_3_hdu = images[0][0]
-            # wise_3_hdu.writeto(fname, overwrite=True)
-
-            # WISE 12 micron
-            # fname = os.path.join(outdir, f"{gname}_wise_12.fits")
-            images = SkyView.get_images(
-                position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                pixels=1024, width=w*u.deg, height=h*u.deg, survey="WISE 12")
-            wise_12_hdu = images[0][0]
-            # wise_12_hdu.writeto(fname, overwrite=True)
-
-            # WISE 22 micron
-            # fname = os.path.join(outdir, f"{gname}_wise_22.fits")
-            images = SkyView.get_images(
-                position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                pixels=1024, width=w*u.deg, height=h*u.deg, survey="WISE 22")
-            wise_22_hdu = images[0][0]
-            # wise_22_hdu.writeto(fname, overwrite=True)
+            hdus = [] # Want to use array here calling np.zeros but unsure of
+            # hdu data type.
+            for it,cat in enumerate(catalogs):
+                # fname = os.path.join(outdir, f'{gname}_'+cat.split(' ')[0]+cat.split(' ')[1]+'.fits')
+                # Still dependent on the spaces in between eg WISE 22, will need to determine if this
+                # needs to be more general.
+                
+                images = SkyView.get_images(
+                    position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
+                    pixels=1024, width=size*u.deg, survey=cat)
+                hdus.append(images[0][0])
+                # images[0][0].writeto(fname, overwrite=True)
 
             # success
             success = True
@@ -265,7 +185,7 @@ def auto_get_wise_images(gname, ra, dec, w, h, outdir):
             count += 1
             time.sleep(0.2)
             
-    return wise_3_hdu, wise_12_hdu, wise_22_hdu
+    return hdus
 
 
 # def main(db, outfile, gname = 'None', coords = [361,0], dims = [0,0], Allsky = True):
@@ -287,9 +207,10 @@ def main(section):
     config_object.read(config_object_file)
     config = config_object[section] #######################################
     dims = [float(config['imsize']),float(config['imsize'])]
+    catalogs = config['catalogs'].split(',')
     
     if config['gname'] != 'None':
-        knownreg(config['db'], config['outputdir'], config['gname'])
+        knownreg(config['db'], config['outputdir'], catalogs, config['gname'])
         
     if dims[0] != 0:
         if bool(int(config['Allsky'])) == True:
@@ -302,26 +223,36 @@ def main(section):
             for it,(l,b) in enumerate(zip(ls,bs)):    
                 radec = getcoords([l,b])
                 gname = 'A'+str(l)+str(b)
-                wise_3, wise_12, wise_22 = auto_get_wise_images(
-                gname, radec[0], radec[1], dims[0], dims[1], config['outputdir'])
-                if wise_3 == 'fail':
+                hdu_list = get_images(
+                gname, radec[0], radec[1], dims[0], catalogs, config['outputdir'])
+                
+                # originally checking for wise_3 = 'fail', should still work
+                if hdu_list[0] == 'fail':
                     continue
             
                 # Clip and scale infrared data
-                image_r = scale(wise_22.data, 10.0, 99.0)
-                image_g = scale(wise_12.data, 10.0, 99.5)
-                image_b = scale(wise_3.data, 10.0, 99.5)
-                image = np.stack([image_r, image_g, image_b], axis=-1)
+                
+                frames = []
+                # same issue as for the hdus in the get_images function
+                
+                # Can definitely vectorize this loop.
+                for hdu in hdu_list:
+                    frames.append(scale(hdu.data, 10.0, 99.5))
+                # image_r = scale(wise_22.data, 10.0, 99.0)
+                # image_g = scale(wise_12.data, 10.0, 99.5)
+                # image_b = scale(wise_3.data, 10.0, 99.5)
+                image = np.stack(frames, axis=-1)
             
             
                 # Generate figure
                 fig = plt.figure()
-                wcs = WCS(wise_3.header).celestial
+                wcs = WCS(hdu_list[0].header).celestial
                 ax = plt.subplot(projection=wcs)
                 ax.imshow(image, origin="lower", interpolation="none")
                 ax.set_xlabel("RA (J2000)")
                 ax.set_ylabel("Declination (J2000)")
-                fig.savefig(config['outputdir']+gname+'_wise.pdf', bbox_inches="tight")
+                fig.savefig(config['outputdir']+gname+'_'+catalogs[0].split(' ')[0]+'.pdf',
+                            bbox_inches="tight")
                 plt.close(fig)
                 # executionTime = (time.time() - startTime)
                 # print('Execution time in seconds: ' + str(executionTime))
@@ -342,26 +273,32 @@ def main(section):
                 # startTime = time.time()
                 radec = getcoords([l,b])
                 gname = 'A'+str(l)+str(b)
-                wise_3, wise_12, wise_22 = auto_get_wise_images(
-                gname, radec[0], radec[1], dims[0], dims[1], config['outputdir'])
-                if wise_3 == 'fail':
+                hdu_list = get_images(
+                gname, radec[0], radec[1], dims[0], catalogs, config['outputdir'])
+                if hdu_list[0] == 'fail':
                     continue
             
                 # Clip and scale infrared data
-                image_r = scale(wise_22.data, 10.0, 99.0)
-                image_g = scale(wise_12.data, 10.0, 99.5)
-                image_b = scale(wise_3.data, 10.0, 99.5)
-                image = np.stack([image_r, image_g, image_b], axis=-1)
+                
+                # see above
+                frames = []
+                for hdu in hdu_list:
+                    frames.append(scale(hdu.data, 10.0, 99.5))
+                # image_r = scale(wise_22.data, 10.0, 99.0)
+                # image_g = scale(wise_12.data, 10.0, 99.5)
+                # image_b = scale(wise_3.data, 10.0, 99.5)
+                image = np.stack(frames, axis=-1)
             
             
                 # Generate figure
                 fig = plt.figure()
-                wcs = WCS(wise_3.header).celestial
+                wcs = WCS(hdu_list[0].header).celestial
                 ax = plt.subplot(projection=wcs)
                 ax.imshow(image, origin="lower", interpolation="none")
                 ax.set_xlabel("RA (J2000)")
                 ax.set_ylabel("Declination (J2000)")
-                fig.savefig(config['outputdir']+gname+'_wise.pdf', bbox_inches="tight")
+                fig.savefig(config['outputdir']+gname+'_'+catalogs[0].split(' ')[0]+'.pdf',
+                            bbox_inches="tight")
                 plt.close(fig)
                 # executionTime = (time.time() - startTime)
                 # print('Execution time in seconds: ' + str(executionTime))
@@ -377,7 +314,7 @@ def main(section):
         if len(row) != 0:
             print('Actually a known HII Region!')
             gname = 'G'+config['glong']+config['glat']
-            knownreg(config['db'], config['outputdir'], gname)
+            knownreg(config['db'], config['outputdir'], catalogs, gname)
         
         else:
             gname = 'NG'+config['glong']+config['glat']
@@ -385,24 +322,29 @@ def main(section):
             
             imsize = config['regionsize']
             
-            wise_3, wise_12, wise_22 = get_wise_images(
-                gname, radec[0], radec[1], imsize, config['outputdir'])
+            hdu_list = get_images(
+                gname, radec[0], radec[1], imsize, catalogs, config['outputdir'])
             
             # Clip and scale infrared data
-            image_r = scale(wise_22.data, 10.0, 99.0)
-            image_g = scale(wise_12.data, 10.0, 99.5)
-            image_b = scale(wise_3.data, 10.0, 99.5)
-            image = np.stack([image_r, image_g, image_b], axis=-1)
+            # see above
+            frames = []
+            for hdu in hdu_list:
+                frames.append(scale(hdu.data, 10.0, 99.5))
+            # image_r = scale(wise_22.data, 10.0, 99.0)
+            # image_g = scale(wise_12.data, 10.0, 99.5)
+            # image_b = scale(wise_3.data, 10.0, 99.5)
+            image = np.stack(frames, axis=-1)
             
             
             # Generate figure
             fig = plt.figure()
-            wcs = WCS(wise_3.header).celestial
+            wcs = WCS(hdu_list[0].header).celestial
             ax = plt.subplot(projection=wcs)
             ax.imshow(image, origin="lower", interpolation="none")
             ax.set_xlabel("RA (J2000)")
             ax.set_ylabel("Declination (J2000)")
-            fig.savefig(config['outputdir']+gname+'_wise.pdf', bbox_inches="tight")
+            fig.savefig(config['outputdir']+gname+'_'+catalogs[0].split(' ')[0]+'.pdf',
+                            bbox_inches="tight")
             plt.close(fig)
             
     
