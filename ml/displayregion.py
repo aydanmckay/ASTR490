@@ -92,7 +92,7 @@ def scale(data, vmin, vmax):
     data = data / np.nanmax(data)
     return data
 
-def knownreg(db, outfile, catalogs, gname):
+def knownreg(db, outfile, catalogs, gname, imsize):
     # Get the WISE Catalog data
     wise_catalog = get_wise_catalog(db)
 
@@ -102,7 +102,6 @@ def knownreg(db, outfile, catalogs, gname):
         raise ValueError(f"{gname} not found in WISE Catalog!")
     row = row.iloc[0]
     # image size is three times larger than source radius
-    imsize = 3.0 * row["radius"]/3600.0
     wise_3, wise_12, wise_22 = get_images(
         gname, row["ra"], row["dec"], imsize, catalogs, outfile)
 
@@ -210,7 +209,8 @@ def main(section):
     catalogs = config['catalogs'].split(',')
     
     if config['gname'] != 'None':
-        knownreg(config['db'], config['outputdir'], catalogs, config['gname'])
+        knownreg(config['db'], config['outputdir'], catalogs, config['gname'],
+                 config['imsize'])
         
     if dims[0] != 0:
         if bool(int(config['Allsky'])) == True:
@@ -346,44 +346,3 @@ def main(section):
             fig.savefig(config['outputdir']+gname+'_'+catalogs[0].split(' ')[0]+'.pdf',
                             bbox_inches="tight")
             plt.close(fig)
-            
-    
-# if __name__ == "__main__":
-#     main()
-    
-# =============================================================================
-#     gnamechecker = True
-#     while gnamechecker:
-#         batchcontrol = input('Automatically create image catalog? (y/n): ')
-#         if batchcontrol == 'y':
-#             print('Image Dimensions (For now choose factors of 360)')
-#             dim_l = float(input('...For Galactic Longitude?: '))
-#             dim_b = float(input('...For Galactic Latitude?: '))
-#             dims = [dim_l,dim_b]
-#             skycoverage = input('All sky? (Type \"y\" for total sky coverage): ')
-#             allsky = True
-#             if skycoverage != 'y':
-#                 allsky = False   
-#             main("D:/dataverse_files/v2/hii_v2_20201203.db",
-#                   "D:/ASTR490/",
-#                   dims = dims, Allsky=allsky)
-#             break
-#         elif batchcontrol != 'n':
-#             print('Invalid input...')
-#             continue
-#         boolregion = input('Known HII Region? (y/n): ')
-#         if boolregion == 'y':
-#             gname = input('Name of the region: ')
-#             main("D:/dataverse_files/v2/hii_v2_20201203.db",
-#                   "C:/Users/aydan/OneDrive/Documents/UVic_2021/Astr 490/",
-#                   gname = gname)
-#             gnamechecker = False
-#         elif boolregion == 'n':
-#             coordsstring = input('Galactic Coordinates? (l [###.###],b [+/-##.###]): ')
-#             main("D:/dataverse_files/v2/hii_v2_20201203.db",
-#                   "C:/Users/aydan/OneDrive/Documents/UVic_2021/Astr 490/",
-#                   coords = coordsstring.split(','))
-#             gnamechecker = False
-#         else:
-#             print('Invalid input...')
-# =============================================================================
