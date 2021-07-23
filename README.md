@@ -12,7 +12,8 @@ catalog based on the entire sky or a specific subsection specified in the file.
 
 The config.ini file will need to be updated to match the directory of the location
 of the database ("'db'") and the output directory ("'outputdir'") for the device it
-is running on.
+is running on. *** Need to change the config_object_file parameter in main() from
+displayregion.py to where the config file is located as well ***
 
 displayregion.py implements the config.ini file to create either the singular image
 or catalog of images to be used as the test/dev set by the ML code. The actual pixel
@@ -34,8 +35,7 @@ using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 Type "'knownregion'" as the parameter for main() in runner.py and the code will
 create an image of the HII Region given in the "gname" parameter spot of the
 config.ini file. These images are also 1 degree of galactic longitude by 1 degree
-of galactic latitude. Currently does not work for automation or multiple inputs at
-the same time. The images are produced using the WISE Catalog in the 3.4, 12, and
+of galactic latitude. The images are produced using the WISE Catalog in the 3.4, 12, and
 22 micron filters.
 
 [Allskyparams]
@@ -59,4 +59,9 @@ Regions lie in that spot based off their size and central coordinates. (verify t
 randomly selecting a spot will be the quickest method.)
 
 Code needs commenting and to be completed as of this commit.
+
+Automation for [knownregion] added tentatively, code needs cleaning. For automation,
+HII Regoin names must be inserted manually (Will be drawn from the WISE Catalog in
+future versoin of code) and in the format shown for the 5 Regions already appearing
+in the config.ini file.
 

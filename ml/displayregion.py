@@ -95,40 +95,75 @@ def scale(data, vmin, vmax):
 def knownreg(db, outfile, catalogs, gname, imsize):
     # Get the WISE Catalog data
     wise_catalog = get_wise_catalog(db)
-
-    # Get WISE infrared data
-    row = wise_catalog.loc[wise_catalog["gname"] == gname]
-    if len(row) == 0:
-        raise ValueError(f"{gname} not found in WISE Catalog!")
-    row = row.iloc[0]
-    # image size is three times larger than source radius
-    wise_3, wise_12, wise_22 = get_images(
-        gname, row["ra"], row["dec"], imsize, catalogs, outfile)
-
-    # Clip and scale infrared data
-    image_r = scale(wise_22.data, 10.0, 99.0)
-    image_g = scale(wise_12.data, 10.0, 99.5)
-    image_b = scale(wise_3.data, 10.0, 99.5)
-    image = np.stack([image_r, image_g, image_b], axis=-1)
-
-    # Generate figure
-    fig = plt.figure()
-    wcs = WCS(wise_3.header).celestial
-    ax = plt.subplot(projection=wcs)
-    ax.imshow(image, origin="lower", interpolation="none")
-    ax.set_xlabel("RA (J2000)")
-    ax.set_ylabel("Declination (J2000)")
-    # get pixel position and radius of the WISE Catalog source
-    xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
-# =============================================================================
-#     radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
-#     circle = Circle(
-#         (xpos, ypos), radius, fill=False,
-#         linestyle="dashed", color="yellow")
-#     ax.add_artist(circle)
-# =============================================================================
-    fig.savefig(outfile+gname+'_wise.pdf', bbox_inches="tight")
-    plt.close(fig)
+    if len(gname.split(',')) > 1:
+        for name in gname.split(','):
+             # Get WISE infrared data
+            row = wise_catalog.loc[wise_catalog["gname"] == name]
+            if len(row) == 0:
+                raise ValueError(f"{gname} not found in WISE Catalog!")
+            row = row.iloc[0]
+            # image size is three times larger than source radius
+            wise_3, wise_12, wise_22 = get_images(
+                name, row["ra"], row["dec"], imsize, catalogs, outfile)
+        
+            # Clip and scale infrared data
+            image_r = scale(wise_22.data, 10.0, 99.0)
+            image_g = scale(wise_12.data, 10.0, 99.5)
+            image_b = scale(wise_3.data, 10.0, 99.5)
+            image = np.stack([image_r, image_g, image_b], axis=-1)
+        
+            # Generate figure
+            fig = plt.figure()
+            wcs = WCS(wise_3.header).celestial
+            ax = plt.subplot(projection=wcs)
+            ax.imshow(image, origin="lower", interpolation="none")
+            ax.set_xlabel("RA (J2000)")
+            ax.set_ylabel("Declination (J2000)")
+            # get pixel position and radius of the WISE Catalog source
+            xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
+        # =============================================================================
+        #     radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
+        #     circle = Circle(
+        #         (xpos, ypos), radius, fill=False,
+        #         linestyle="dashed", color="yellow")
+        #     ax.add_artist(circle)
+        # =============================================================================
+            fig.savefig(outfile+name+'_wise.pdf', bbox_inches="tight")
+            plt.close(fig)
+    else:
+        # Get WISE infrared data
+        row = wise_catalog.loc[wise_catalog["gname"] == gname]
+        if len(row) == 0:
+            raise ValueError(f"{gname} not found in WISE Catalog!")
+        row = row.iloc[0]
+        # image size is three times larger than source radius
+        wise_3, wise_12, wise_22 = get_images(
+            gname, row["ra"], row["dec"], imsize, catalogs, outfile)
+    
+        # Clip and scale infrared data
+        image_r = scale(wise_22.data, 10.0, 99.0)
+        image_g = scale(wise_12.data, 10.0, 99.5)
+        image_b = scale(wise_3.data, 10.0, 99.5)
+        image = np.stack([image_r, image_g, image_b], axis=-1)
+    
+        # Generate figure
+        fig = plt.figure()
+        wcs = WCS(wise_3.header).celestial
+        ax = plt.subplot(projection=wcs)
+        ax.imshow(image, origin="lower", interpolation="none")
+        ax.set_xlabel("RA (J2000)")
+        ax.set_ylabel("Declination (J2000)")
+        # get pixel position and radius of the WISE Catalog source
+        xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
+    # =============================================================================
+    #     radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
+    #     circle = Circle(
+    #         (xpos, ypos), radius, fill=False,
+    #         linestyle="dashed", color="yellow")
+    #     ax.add_artist(circle)
+    # =============================================================================
+        fig.savefig(outfile+gname+'_wise.pdf', bbox_inches="tight")
+        plt.close(fig)
     
 def get_images(gname, ra, dec, size, catalogs, outdir):
     """
@@ -204,12 +239,11 @@ def main(section):
     
     #Read config.ini file
     config_object = ConfigParser()
-    config_object_file = 'C:/Users/aydan/OneDrive/Documents/UVic_2021/Astr 490/ml/config.ini'
+    config_object_file = 'D:/githubfiles/ASTR490/ml/config.ini'
     config_object.read(config_object_file)
     config = config_object[section] #######################################
     dims = [float(config['imsize']),float(config['imsize'])]
     catalogs = config['catalogs'].split(',')
-    
     if config['gname'] != 'None':
         knownreg(config['db'], config['outputdir'], catalogs, config['gname'],
                  config['imsize'])
