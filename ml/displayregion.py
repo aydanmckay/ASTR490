@@ -120,11 +120,13 @@ def knownreg(db, outfile, catalogs, gname, imsize):
     ax.set_ylabel("Declination (J2000)")
     # get pixel position and radius of the WISE Catalog source
     xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
-    radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
-    circle = Circle(
-        (xpos, ypos), radius, fill=False,
-        linestyle="dashed", color="yellow")
-    ax.add_artist(circle)
+# =============================================================================
+#     radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
+#     circle = Circle(
+#         (xpos, ypos), radius, fill=False,
+#         linestyle="dashed", color="yellow")
+#     ax.add_artist(circle)
+# =============================================================================
     fig.savefig(outfile+gname+'_wise.pdf', bbox_inches="tight")
     plt.close(fig)
     
@@ -168,7 +170,7 @@ def get_images(gname, ra, dec, size, catalogs, outdir):
             hdus = [] # Want to use array here calling np.zeros but unsure of
             # hdu data type.
             for it,cat in enumerate(catalogs):
-                # fname = os.path.join(outdir, f'{gname}_'+cat.split(' ')[0]+cat.split(' ')[1]+'.fits')
+                fname = os.path.join(outdir, f'{gname}_'+cat.split(' ')[0]+cat.split(' ')[1]+'.fits')
                 # Still dependent on the spaces in between eg WISE 22, will need to determine if this
                 # needs to be more general.
                 
@@ -176,7 +178,7 @@ def get_images(gname, ra, dec, size, catalogs, outdir):
                     position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
                     pixels=1024, width=size*u.deg, survey=cat)
                 hdus.append(images[0][0])
-                # images[0][0].writeto(fname, overwrite=True)
+                images[0][0].writeto(fname, overwrite=True)
 
             # success
             success = True
