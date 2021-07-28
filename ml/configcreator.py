@@ -16,7 +16,7 @@ def main():
     config_object['baseparams'] = {
         'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
         'outputdir': 'D:/ASTR490/Catalog/',
-        'imsize': '1',
+        'imsize': '0.5',
         'Allsky': '0',
         'glongmax': '305',
         'glongmin': '301',
@@ -25,14 +25,13 @@ def main():
         'gname': 'None',
         'glong': '361',
         'glat': '0',
-        'regionsize': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
     config_object['Allskyparams'] = {
         'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
         'outputdir': 'D:/ASTR490/Allskyfolder/',
-        'imsize': '1',
+        'imsize': '0.5',
         'Allsky': '1',
         'glongmax': '0',
         'glongmin': '0',
@@ -41,15 +40,14 @@ def main():
         'gname': 'None',
         'glong': '361',
         'glat': '0',
-        'regionsize': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
     config_object['knownregion'] = {
         'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
         'outputdir': 'D:/ASTR490/knownreg/',
-        'imsize': '0',
-        'Allsky': '1',
+        'imsize': '0.5',
+        'Allsky': '0',
         'glongmax': '0',
         'glongmin': '0',
         'glatmax': '0',
@@ -57,7 +55,6 @@ def main():
         'gname': 'G297.651-00.973,G114.526-00.543,G247.467+02.181,G301.489+00.125,G052.750+00.334',
         'glong': '361',
         'glat': '0',
-        'regionsize': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22' # Make the known region catalog
         # options fixed
     }
@@ -65,8 +62,8 @@ def main():
     config_object['coords'] = {
         'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
         'outputdir': 'D:/ASTR490/randcoords/',
-        'imsize': '0',
-        'Allsky': '1',
+        'imsize': '0.5',
+        'Allsky': '0',
         'glongmax': '0',
         'glongmin': '0',
         'glatmax': '0',
@@ -75,7 +72,21 @@ def main():
         # l [###.###],b [+/-##.###]
         'glong': '087.000', 
         'glat': '+00.500',
-        'regionsize': '0.3',
+        'catalogs': 'WISE 3.4,WISE 12,WISE 22'
+    }
+    
+    config_object['noregion'] = {
+        'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
+        'outputdir': 'D:/ASTR490/noregions/',
+        'imsize': '0.5',
+        'Allsky': '0',
+        'glongmax': '312',
+        'glongmin': '308',
+        'glatmax': '2',
+        'glatmin': '0',
+        'gname': 'None',
+        'glong': '361', 
+        'glat': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
