@@ -21,7 +21,7 @@ from configparser import ConfigParser
 
 def get_wise_catalog(db):
     """
-    Returns a pandas dataframe containing relecant data from the 
+    Returns a pandas dataframe containing relevant data from the 
     WISE Catalog. Originally created by Trey Wenger
 
     Parameters
@@ -110,7 +110,7 @@ def knownreg(db, outfile, catalogs, gname, imsize):
     db : string
         Filename to the HII Region database.
     outfile : string
-        Directory where downloaded FITS and PDF images are saved.
+        Directory where downloaded FITS and PNG images are saved.
     catalogs : list of strings
         List of catalogs from which to pull the data from
         (e.g. WISE 3.4, WISE 12, etc.).
@@ -171,7 +171,7 @@ def knownreg(db, outfile, catalogs, gname, imsize):
     #         linestyle="dashed", color="yellow")
     #     ax.add_artist(circle)
     # =============================================================================
-        fig.savefig(outfile+name+'_wise.pdf', bbox_inches="tight")
+        fig.savefig(outfile+name+'_wise.png', bbox_inches="tight")
         plt.close(fig)
     
 def get_images(gname, ra, dec, size, catalogs, outdir):
@@ -228,9 +228,10 @@ def get_images(gname, ra, dec, size, catalogs, outdir):
                 # will need to determine if this needs to be changed
         
                 # attempt to acquire hdu of the given coordinates
+                # Each pixel is 4" across for WISE 22 micron
                 images = SkyView.get_images(
                     position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                    pixels=1024, width=size*u.deg, survey=cat)
+                    pixels=450, width=size*u.deg, survey=cat)
                 hdus.append(images[0][0])
                 images[0][0].writeto(fname, overwrite=True)
 
@@ -273,14 +274,15 @@ def noregion(ra,dec,wise_catalog,imsize):
     
     # If in the frame return 'Regions', otherwise 'Good'
     if len(rows) > 0:
-        # print('Regions in frame')
-        # print(rows)
-        # print(ra,' ',dec)
+        print('Regions in frame')
+        print(rows)
+        print(ra,' ',dec,'\n')
         return 'Regions'
     else:
+        print('No Regions in frame\n')
         return 'Good'
 
-def main(section):
+def main(section,config_location):
     """
     Generate a WISE infrared three-color catalog containing
     WISE HII Regions.
@@ -297,8 +299,9 @@ def main(section):
 
     """
     #Read config.ini file
+    clock = time.time()
     config_object = ConfigParser()
-    config_object_file = 'D:/githubfiles/ASTR490/ml/config.ini'
+    config_object_file = config_location
     config_object.read(config_object_file)
     config = config_object[section] #######################################
     dims = [float(config['imsize']),float(config['imsize'])]
@@ -367,7 +370,10 @@ def main(section):
                 
             # obtain the hdus for the given coordinates from 
             # the given catalogs
-            gname = string+str(l)+str(b)
+            if b >= 0:
+                gname = string+str(l)+'+'+str(b)
+            else:
+                gname = string+str(l)+str(b)
             hdu_list = get_images(
             gname, radec[0], radec[1], dims[0], catalogs, config['outputdir'])
             
@@ -377,7 +383,7 @@ def main(section):
                 continue
         
             # Clip and scale infrared data
-            frames = [scale(hdu.data, 10.0, 99.5) for hdu in hdu_list]
+            frames = [scale(hdu.data, 10.0, 99.5) for hdu in hdu_list[::-1]]
             image = np.stack(frames, axis=-1)
         
             # Generate figure
@@ -387,6 +393,12 @@ def main(section):
             ax.imshow(image, origin="lower", interpolation="none")
             ax.set_xlabel("RA (J2000)")
             ax.set_ylabel("Declination (J2000)")
-            fig.savefig(config['outputdir']+gname+'_'+catalogs[0].split(' ')[0]+'.pdf',
+            fig.savefig(config['outputdir']+gname+'_'+catalogs[0].split(' ')[0]+'.png',
                         bbox_inches="tight")
             plt.close(fig)
+    print('Elapsed time',time.time() - clock)
+    
+    
+# argparse package
+
+# PNe or SNe catalogs may be read in scripts, will have to look into that

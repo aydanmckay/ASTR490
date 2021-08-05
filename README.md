@@ -66,3 +66,13 @@ in the config.ini file).
 Automation for [knownregion] added tentatively. For automation, HII Regoin names must 
 be inserted manually (Will be drawn from the WISE Catalog in future version of code)
 and in the format shown for the 5 Regions already appearing in the config.ini file.
+
+*In Progress/Recent Updates*
+~Updated runner.py to take the kwargs from the cmd, commented the script with reminders
+for my specific device.
+~Switched output PDF files to PNG files.
+~Removed hardcoded location of config.ini file (see first point)
+~"Fixed" colours of the output images
+~Changed file names for sources with positive galactic latitudes to be more readable
+~Need to account for reading in CSV files for other celestial object catalogs
+~May remove runner.py entirely and add kwargs from cmd to displayregion.py
