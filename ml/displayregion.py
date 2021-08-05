@@ -231,7 +231,7 @@ def get_images(gname, ra, dec, size, catalogs, outdir):
                 # Each pixel is 4" across for WISE 22 micron
                 images = SkyView.get_images(
                     position=f"{ra:.3f}, {dec:.3f}", coordinates="J2000",
-                    pixels=450, width=size*u.deg, survey=cat)
+                    pixels=900, width=size*u.deg, survey=cat)
                 hdus.append(images[0][0])
                 images[0][0].writeto(fname, overwrite=True)
 

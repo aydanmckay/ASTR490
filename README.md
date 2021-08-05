@@ -68,11 +68,21 @@ be inserted manually (Will be drawn from the WISE Catalog in future version of c
 and in the format shown for the 5 Regions already appearing in the config.ini file.
 
 *In Progress/Recent Updates*
+
 ~Updated runner.py to take the kwargs from the cmd, commented the script with reminders
 for my specific device.
+
 ~Switched output PDF files to PNG files.
-~Removed hardcoded location of config.ini file (see first point)
-~"Fixed" colours of the output images
-~Changed file names for sources with positive galactic latitudes to be more readable
-~Need to account for reading in CSV files for other celestial object catalogs
-~May remove runner.py entirely and add kwargs from cmd to displayregion.py
+
+~Removed hardcoded location of config.ini file (see first point).
+
+~"Fixed" colours of the output images.
+
+~Changed file names for sources with positive galactic latitudes to be more readable.
+
+~Updated pixel size of FITS files from 1024 to 450, now 900 based on resolution limit
+of WISE at 22 microns, then 3.4 microns.
+
+~Need to account for reading in CSV files for other celestial object catalogs.
+
+~May remove runner.py entirely and add kwargs from cmd to displayregion.py.
