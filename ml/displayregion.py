@@ -6,6 +6,7 @@ Created on Wed Jun 16 17:05:00 2021
 """
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 import sqlite3
@@ -398,6 +399,16 @@ def main(section,config_location):
             plt.close(fig)
     print('Elapsed time',time.time() - clock)
     
+if __name__ == '__main__':
+# =============================================================================
+#     Code to run displayregion.py
+#     python displayregion.py 'D:/githubfiles/ASTR490/ml/config.ini' noregion
+# =============================================================================
+    
+    # str(sys.argv[1]) = 'D:/githubfiles/ASTR490/ml/config.ini'
+    # str(sys.argv[2]) = e.g. noregion, baseparams, etc. 
+
+    main(str(sys.argv[2]),str(sys.argv[1]))
     
 # argparse package
 

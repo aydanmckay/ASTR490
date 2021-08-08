@@ -23,39 +23,38 @@ or catalog of images to be used as the test/dev set by the ML code. The actual p
 values for flux can be returned in the form of .fits files, and a 3-color image is
 returned in the form of a .pdf file.
 
-the ml folder is meant to be a package that can be imported into python scripts if
-need be. Therefore to run it, runner.py is used. To use the different keywords in 
-the config.ini file and create a different catalog or image of HII Regions, runner.py
-must be updated by changing the parameter passed into main()
+runner.py has been removed and now displayregion.py can be used by itself calling
+parameters from the command line pointing to where the config.ini file is and the
+section of the config.ini file wished to be used to create a catalog.
 
 [baseparams]
-Type "'baseparams'" as the parameter for main() in runner.py and the code will run 
-creating images that are 0.25 square degrees between the coordinates (301,-1) and 
+Type "'baseparams'" as the parameter for main() in displayregion.py and the code will
+run creating images that are 0.25 square degrees between the coordinates (301,-1) and 
 (305,1) (in galactic longitude and latitude). The images are produced using the WISE
 Catalog in the 3.4, 12, and 22 micron filters.
 
 [knownregion]
-Type "'knownregion'" as the parameter for main() in runner.py and the code will
+Type "'knownregion'" as the parameter for main() in displayregion.py and the code will
 create an image of the HII Region given in the "gname" parameter spot of the
 config.ini file. These images are also 1 degree of galactic longitude by 1 degree
 of galactic latitude. The images are produced using the WISE Catalog in the 3.4, 12, and
 22 micron filters.
 
 [Allskyparams]
-Type "'Allskyparams'" as the parameter for main() in runner.py and the code will run 
-creating images that are 0.25 square degrees for the entire sky. The images are produced 
-using the WISE Catalog in the 3.4, 12, and 22 micron filters.
+Type "'Allskyparams'" as the parameter for main() in displayregion.py and the code will 
+run creating images that are 0.25 square degrees for the entire sky. The images are
+produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
 [coords]
-Type "'Allskyparams'" as the parameter for main() in runner.py and the code will
-create an image centered on the coordinates given in the config.ini file. Currently
+Type "'Allskyparams'" as the parameter for main() in displayregion.py and the code 
+will create an image centered on the coordinates given in the config.ini file. Currently
 does not work for automation or multiple inputs at the same time. The images are
 produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
 [noregion]
-Type "'noregion'" as the parameter for main() in reunner.py and the code with create
-a catalog containing no HII Regions in 0.25 square degree images of a subsection of
-the sky. This subsection is (308,0) to (312,2) in galactic longitude and latitude.
+Type "'noregion'" as the parameter for main() in displayregion.py and the code with
+create a catalog containing no HII Regions in 0.25 square degree images of a subsection
+of the sky. This subsection is (308,0) to (312,2) in galactic longitude and latitude.
 The images are produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
 Future adaptations are going to be adding a feature that will randomize the location
@@ -69,8 +68,9 @@ and in the format shown for the 5 Regions already appearing in the config.ini fi
 
 *In Progress/Recent Updates*
 
-~Updated runner.py to take the kwargs from the cmd, commented the script with reminders
-for my specific device.
+~Removed runner.py, now only need to run displayregion.py
+
+~can now choose the parameters from cmd.
 
 ~Switched output PDF files to PNG files.
 
@@ -84,5 +84,3 @@ for my specific device.
 of WISE at 22 microns, then 3.4 microns.
 
 ~Need to account for reading in CSV files for other celestial object catalogs.
-
-~May remove runner.py entirely and add kwargs from cmd to displayregion.py.

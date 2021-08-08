@@ -90,6 +90,36 @@ def main():
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
+    config_object['SNRcatalog'] = {
+        'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
+        'outputdir': 'D:/ASTR490/noregions/',
+        'imsize': '0.5',
+        'Allsky': '0',
+        'glongmax': '317',
+        'glongmin': '313',
+        'glatmax': '2',
+        'glatmin': '0',
+        'gname': 'None',
+        'glong': '361', 
+        'glat': '0',
+        'catalogs': 'WISE 3.4,WISE 12,WISE 22'
+    }
+    
+    config_object['PNecatalog'] = {
+        'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
+        'outputdir': 'D:/ASTR490/noregions/',
+        'imsize': '0.5',
+        'Allsky': '0',
+        'glongmax': '317',
+        'glongmin': '313',
+        'glatmax': '2',
+        'glatmin': '0',
+        'gname': 'None',
+        'glong': '361', 
+        'glat': '0',
+        'catalogs': 'WISE 3.4,WISE 12,WISE 22'
+    }
+    
     #Write the above sections to config.ini file
     with open('D:/githubfiles/ASTR490/ml/config.ini', 'w') as conf:
         config_object.write(conf)
