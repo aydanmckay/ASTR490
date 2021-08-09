@@ -8,7 +8,6 @@ Created on Wed Jun 16 17:05:00 2021
 import os
 import sys
 import numpy as np
-import pandas as pd
 import sqlite3
 import shutil
 import astropy.units as u
@@ -32,7 +31,7 @@ def get_wise_catalog(db):
 
     Returns
     -------
-    data : pandas.DataFrame
+    data : np.ndarray
         DataFrame containing the WISE Catalog data.
 
     """
@@ -40,29 +39,40 @@ def get_wise_catalog(db):
         cur = conn.cursor()
         cur.execute("PRAGMA foreign_keys = ON")
         cur.execute("SELECT gname, ra, dec, radius FROM Catalog")
-        data = pd.DataFrame(
-            cur.fetchall(), columns=[d[0] for d in cur.description])
+        data = np.array(
+            cur.fetchall(),dtype=[('gname','<U16'), ('ra', '<f8'), 
+                            ('dec', '<f8'), ('radius','<f8')])
     return data
 
-def getcoords(coords):
+def getcoords(coords,framekwarg = 'galactic'):
     """
-    Convets user inputted galactic coordinates to RA and Dec.
+    Converts user inputted coordinates to RA and Dec.
 
     Parameters
     ----------
     coords : list of strings
         The coordinates in Galactic coordinates inputted by the user.
+    framekwarg : string, optional
+        The format that the coordinates are to be changed from. The
+        default is 'galactic'.
 
     Returns
     -------
     newcoords : list of strings
         The coordinates in RA and Dec.
-    
+
     """
-    skycoordthing = SkyCoord(frame='galactic', l=coords[0],
-                             b=coords[1], unit='deg').icrs
-    newcoords = [skycoordthing.ra.deg,skycoordthing.dec.deg]
-    return newcoords
+    if framekwarg == 'galactic':
+        skycoordthing = SkyCoord(frame=framekwarg, l=coords[0],
+                                 b=coords[1], unit='deg').icrs
+        newcoords = [skycoordthing.ra.deg,skycoordthing.dec.deg]
+        return newcoords
+    else:
+        skycoordthing = SkyCoord(coords, frame=framekwarg,
+                                 unit=(u.hourangle, u.deg),
+                                 obstime="J2000").icrs
+        newcoords = [skycoordthing.ra.deg,skycoordthing.dec.deg]
+        return newcoords
 
 def scale(data, vmin, vmax):
     """
@@ -100,7 +110,7 @@ def scale(data, vmin, vmax):
     data = data / np.nanmax(data)
     return data
 
-def knownreg(db, outfile, catalogs, gname, imsize):
+def knownreg(db, outfile, catalogs, gname, imsize, section):
     """
     Returns a catalog of known HII Regions based off the names
     given in the config.ini file. Similar to the wise_demo.py
@@ -109,7 +119,7 @@ def knownreg(db, outfile, catalogs, gname, imsize):
     Parameters
     ----------
     db : string
-        Filename to the HII Region database.
+        Filename to the HII Region/SNR/PNe database.
     outfile : string
         Directory where downloaded FITS and PNG images are saved.
     catalogs : list of strings
@@ -120,6 +130,9 @@ def knownreg(db, outfile, catalogs, gname, imsize):
             f"{outdir}/{gname}_wise.fits", etc..
     imsize : scalar (deg)
         Image cutout size.
+    section : string
+        Section of the config.ini file that determines either PNe,
+        SNR, or HII Region catalog.
 
     Raises
     ------
@@ -132,21 +145,56 @@ def knownreg(db, outfile, catalogs, gname, imsize):
     None.
 
     """
-    # Get the WISE Catalog data
-    wise_catalog = get_wise_catalog(db)
-    if len(gname.split(',')) > 1:
+    if section == 'knownregion':
+        # Get the WISE Catalog data
+        catalog = get_wise_catalog(db)
+            
+    elif section == 'SNRcatalog':
+        # Get the SNR catalog data
+        catalog = np.genfromtxt(db,skip_header=38,delimiter = ";",
+                                dtype=[('gname', '<U16'), ('ra', '<U16'), 
+                                       ('dec', '<U16'),])
+    
+    elif section == 'PNecatalog':
+        # Get the PNe catalog data
+        catalog = np.genfromtxt(db,skip_header=37,delimiter = ";",
+                                dtype=[('gname', '<U16'), ('ra', '<U16'),
+                                       ('dec', '<U16'),])
+    
+    if gname == 'all':
+        names = catalog['gname']
+    elif len(gname.split(',')) > 1:
         names = gname.split(',')
     else:
         names = [gname]
     for name in names:
-         # Verify source is in the WISE Catalog
-        row = wise_catalog.loc[wise_catalog["gname"] == name]
+         # Verify source is in the catalog (given that gname != 'all')
+        row = catalog[catalog["gname"] == name]
+        
+        # Since PNe catalog may have a space at the end of the source name,
+        # this will stop the code from crashing on the last source in a 
+        # given list
+        if len(name) == 0:
+            continue
+        rowra = row['ra'][0]
+        rowdec = row['dec'][0]
+        
         if len(row) == 0:
-            raise ValueError(f"{gname} not found in WISE Catalog!")
-        row = row.iloc[0]
+            raise ValueError(f"{gname} not found in catalog!")
+        
+        if (section == 'PNecatalog') or (section == 'SNRcatalog'):
+            coord = str(rowra)+' '+str(rowdec)
+            print(coord)
+            rowra, rowdec = getcoords(coord,framekwarg='icrs')
+        
         # Get WISE infrared data
         wise_3, wise_12, wise_22 = get_images(
-            name, row["ra"], row["dec"], imsize, catalogs, outfile)
+            name, rowra, rowdec, imsize, catalogs, outfile)
+        
+        # For failed download from get_images(), moves to next item 
+        # in list
+        if wise_3 == 'fail':
+            continue
     
         # Clip and scale infrared data
         image_r = scale(wise_22.data, 10.0, 99.0)
@@ -162,16 +210,16 @@ def knownreg(db, outfile, catalogs, gname, imsize):
         ax.set_xlabel("RA (J2000)")
         ax.set_ylabel("Declination (J2000)")
         # get pixel position of the WISE Catalog source
-        xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
-    # =============================================================================
-    #     commented out the circle being drawn around the region
+# =============================================================================
+    #     xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
+    #     # commented out the circle being drawn around the region
     #     base on the wise_demo.py precursor file
     #     radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
     #     circle = Circle(
     #         (xpos, ypos), radius, fill=False,
     #         linestyle="dashed", color="yellow")
     #     ax.add_artist(circle)
-    # =============================================================================
+# =============================================================================
         fig.savefig(outfile+name+'_wise.png', bbox_inches="tight")
         plt.close(fig)
     
@@ -271,7 +319,7 @@ def noregion(ra,dec,wise_catalog,imsize):
     imsize = float(imsize)
     # Finding all the HII Regions whose radius may make them appear
     # in the frame of a non-HII Region image
-    rows = wise_catalog.loc[((wise_catalog['ra']-wise_catalog['radius']/3600) < (ra+imsize/2)) & ((wise_catalog['ra']+wise_catalog['radius']/3600) > (ra-imsize/2)) & ((wise_catalog['dec']-wise_catalog['radius']/3600) < (dec+imsize/2)) & ((wise_catalog['dec']+wise_catalog['radius']/3600) > (dec-imsize/2))]
+    rows = wise_catalog[((wise_catalog['ra']-wise_catalog['radius']/3600) < (ra+imsize/2)) & ((wise_catalog['ra']+wise_catalog['radius']/3600) > (ra-imsize/2)) & ((wise_catalog['dec']-wise_catalog['radius']/3600) < (dec+imsize/2)) & ((wise_catalog['dec']+wise_catalog['radius']/3600) > (dec-imsize/2))]
     
     # If in the frame return 'Regions', otherwise 'Good'
     if len(rows) > 0:
@@ -293,6 +341,8 @@ def main(section,config_location):
     section : string
         Specfic section of the config file to be used, determining
         what catalog will be generated.
+    config_location : string
+        Directory of the location of the config.ini file.
 
     Returns
     -------
@@ -311,9 +361,10 @@ def main(section,config_location):
     # config.ini file
     
     # Creating the catalog of known HII Regions
-    if section == 'knownregion':
+    if (section == 'knownregion') or (section == 'PNecatalog') or (section == 'SNRcatalog'):
         knownreg(config['db'], config['outputdir'], catalogs, config['gname'],
-                 config['imsize'])
+                 config['imsize'], section)
+        
     else:
         # Grabbing central coordinates of images of a set size of 
         # the entire Galaxy without checking what is in the images

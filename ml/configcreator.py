@@ -43,22 +43,6 @@ def main():
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
-    config_object['knownregion'] = {
-        'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
-        'outputdir': 'D:/ASTR490/knownreg/',
-        'imsize': '0.5',
-        'Allsky': '0',
-        'glongmax': '0',
-        'glongmin': '0',
-        'glatmax': '0',
-        'glatmin': '0',
-        'gname': 'G297.651-00.973,G114.526-00.543,G247.467+02.181,G301.489+00.125,G052.750+00.334',
-        'glong': '361',
-        'glat': '0',
-        'catalogs': 'WISE 3.4,WISE 12,WISE 22' # Make the known region catalog
-        # options fixed
-    }
-    
     config_object['coords'] = {
         'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
         'outputdir': 'D:/ASTR490/randcoords/',
@@ -90,31 +74,53 @@ def main():
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
-    config_object['SNRcatalog'] = {
+    config_object['knownregion'] = {
         'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
-        'outputdir': 'D:/ASTR490/noregions/',
+        'outputdir': 'D:/ASTR490/knownreg/',
+        'imsize': '0.5',
+        'Allsky': '0',
+        'glongmax': '0',
+        'glongmin': '0',
+        'glatmax': '0',
+        'glatmin': '0',
+        # gname can equal 'all' which will create a catalog of every known HII
+        # Region
+        'gname': 'G297.651-00.973,G114.526-00.543,G247.467+02.181,G301.489+00.125,G052.750+00.334',
+        'glong': '361',
+        'glat': '0',
+        'catalogs': 'WISE 3.4,WISE 12,WISE 22' # Make the known region catalog
+        # options fixed
+    }
+    
+    config_object['SNRcatalog'] = {
+        'db': 'D:/dataverse_files/v2/SNRcatalog.tsv',
+        'outputdir': 'D:/ASTR490/SNRs/',
         'imsize': '0.5',
         'Allsky': '0',
         'glongmax': '317',
         'glongmin': '313',
         'glatmax': '2',
         'glatmin': '0',
-        'gname': 'None',
+        # can be equal to 'all' or as above (knownregion)
+        'gname': 'G011.1-01.0',
         'glong': '361', 
         'glat': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
     config_object['PNecatalog'] = {
-        'db': 'D:/dataverse_files/v2/hii_v2_20201203.db',
-        'outputdir': 'D:/ASTR490/noregions/',
+        'db': 'D:/dataverse_files/v2/PNecatalog.tsv',
+        'outputdir': 'D:/ASTR490/PNe/',
         'imsize': '0.5',
         'Allsky': '0',
         'glongmax': '317',
         'glongmin': '313',
         'glatmax': '2',
         'glatmin': '0',
-        'gname': 'None',
+        # can be equal to 'all' or as above (knownregion)
+        # PNe catalog has space at the end of most names, add
+        # a comma after even if last name in list
+        'gname': '130+01.1 ,198-06.1 ,240-07.1 ,',
         'glong': '361', 
         'glat': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'

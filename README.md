@@ -27,18 +27,19 @@ runner.py has been removed and now displayregion.py can be used by itself callin
 parameters from the command line pointing to where the config.ini file is and the
 section of the config.ini file wished to be used to create a catalog.
 
+SNRcatalog.tsv is a catalog of supernova remnants from the paper "A revised 
+catalogue of 294 Galactic supernova remnants (Green, 2019)" accessed through VizieR.
+(https://ui.adsabs.harvard.edu/abs/2019JApA...40...36G/abstract)
+
+PNecatalog.tsv is a catalog of planetary nebulae from the paper "Version 2000 of the
+Catalogue of Galactic Planetary Nebulae" accessed through VizieR
+(https://ui.adsabs.harvard.edu/abs/2001A%26A...378..843K/abstract)
+
 [baseparams]
 Type "'baseparams'" as the parameter for main() in displayregion.py and the code will
 run creating images that are 0.25 square degrees between the coordinates (301,-1) and 
 (305,1) (in galactic longitude and latitude). The images are produced using the WISE
 Catalog in the 3.4, 12, and 22 micron filters.
-
-[knownregion]
-Type "'knownregion'" as the parameter for main() in displayregion.py and the code will
-create an image of the HII Region given in the "gname" parameter spot of the
-config.ini file. These images are also 1 degree of galactic longitude by 1 degree
-of galactic latitude. The images are produced using the WISE Catalog in the 3.4, 12, and
-22 micron filters.
 
 [Allskyparams]
 Type "'Allskyparams'" as the parameter for main() in displayregion.py and the code will 
@@ -57,14 +58,30 @@ create a catalog containing no HII Regions in 0.25 square degree images of a sub
 of the sky. This subsection is (308,0) to (312,2) in galactic longitude and latitude.
 The images are produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
-Future adaptations are going to be adding a feature that will randomize the location
-of an HII Region in the frame to not bias the convolutional neural network and making
-the code generate a catalog of HII Regions to train with automatically ([knownregion]
-in the config.ini file).
+[knownregion]
+Type "'knownregion'" as the parameter for main() in displayregion.py and the code will
+create a catalog of images for the HII Regions given in the "gname" parameter spot of 
+the config.ini file. These images are also 1 degree of galactic longitude by 1 degree
+of galactic latitude. The images are produced using the WISE Catalog in the 3.4, 12, and
+22 micron filters. Can have a parameter set to 'all' which will produce images for all
+HII Regions in the WISE Catalog.
 
-Automation for [knownregion] added tentatively. For automation, HII Regoin names must 
-be inserted manually (Will be drawn from the WISE Catalog in future version of code)
-and in the format shown for the 5 Regions already appearing in the config.ini file.
+[SNRcatalog]
+Type "'SNRcatalog'" as the parameter for main() in displayregion.py and the code will
+create a catalog of images for the Supernova Remnants given in the "gname" parameter 
+spot of the config.ini file. Works the same as [knownregion].
+
+[PNecatalog]
+Type "'PNecatalog'" as the parameter for main() in displayregion.py and the code will
+create a catalog of images for the Planetary Nebulae given in the "gname" parameter 
+spot of the config.ini file. Works the same as [knownregion] and [SNRcatalog].
+
+Future adaptations are going to be adding a feature that will randomize the location
+of an HII Region in the frame to not bias the convolutional neural network.
+
+Automation for [knownregion] added. For automation, HII Regoin names can be inserted
+manually and in the format shown for the 5 Regions already appearing in the
+config.ini file, or drawn from the catalog automatically.
 
 *In Progress/Recent Updates*
 
@@ -83,4 +100,6 @@ and in the format shown for the 5 Regions already appearing in the config.ini fi
 ~Updated pixel size of FITS files from 1024 to 450, now 900 based on resolution limit
 of WISE at 22 microns, then 3.4 microns.
 
-~Need to account for reading in CSV files for other celestial object catalogs.
+~Added to knownregion function in code the ability to parse through all the SNRs and 
+PNe wanted to further expand the non-HII Region catalog and potentially move into
+multi-learning in the future
