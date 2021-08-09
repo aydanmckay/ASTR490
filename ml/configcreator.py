@@ -93,7 +93,7 @@ def main():
     }
     
     config_object['SNRcatalog'] = {
-        'db': 'D:/dataverse_files/v2/SNRcatalog.tsv',
+        'db': 'D:/githubfiles/ASTR490/SNRcatalog.tsv',
         'outputdir': 'D:/ASTR490/SNRs/',
         'imsize': '0.5',
         'Allsky': '0',
@@ -109,7 +109,7 @@ def main():
     }
     
     config_object['PNecatalog'] = {
-        'db': 'D:/dataverse_files/v2/PNecatalog.tsv',
+        'db': 'D:/githubfiles/ASTR490/PNecatalog.tsv',
         'outputdir': 'D:/ASTR490/PNe/',
         'imsize': '0.5',
         'Allsky': '0',
