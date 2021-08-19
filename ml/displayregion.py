@@ -422,7 +422,7 @@ def main(section,config_location):
                 
             # obtain the hdus for the given coordinates from 
             # the given catalogs
-            if b >= 0:
+            if float(b) >= 0:
                 gname = string+str(l)+'+'+str(b)
             else:
                 gname = string+str(l)+str(b)
@@ -435,7 +435,15 @@ def main(section,config_location):
                 continue
         
             # Clip and scale infrared data
-            frames = [scale(hdu.data, 10.0, 99.5) for hdu in hdu_list[::-1]]
+# =============================================================================
+#           # Determining if there is missing data in the form of NaNs in the
+#           # hdu.datas, particularly the 12 and 22 micron frames.
+#             for it,hdu in enumerate(hdu_list[::-1]):
+#                 for num,i in enumerate(hdu.data[0]):
+#                     if np.isnan(i):
+#                         print('listnumber:',it,'index:',num)
+# =============================================================================
+            frames = [scale(hdu.data, 10.0, 99.0) for hdu in hdu_list[::-1]]
             image = np.stack(frames, axis=-1)
         
             # Generate figure

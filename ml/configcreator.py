@@ -53,9 +53,8 @@ def main():
         'glatmax': '0',
         'glatmin': '0',
         'gname': 'None',
-        # l [###.###],b [+/-##.###]
-        'glong': '087.000', 
-        'glat': '+00.500',
+        'glong': '310.25', 
+        'glat': '01.75',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
     }
     
