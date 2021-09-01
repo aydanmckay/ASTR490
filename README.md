@@ -34,29 +34,34 @@ catalogue of 294 Galactic supernova remnants (Green, 2019)](https://ui.adsabs.ha
 Catalogue of Galactic Planetary Nebulae](https://ui.adsabs.harvard.edu/abs/2001A%26A...378..843K/abstract)" accessed through VizieR.
 
 [baseparams]
+
 Type "'baseparams'" as the parameter for main() in displayregion.py and the code will
 run creating images that are 0.25 square degrees between the coordinates (301,-1) and 
 (305,1) (in galactic longitude and latitude). The images are produced using the WISE
 Catalog in the 3.4, 12, and 22 micron filters.
 
 [Allskyparams]
+
 Type "'Allskyparams'" as the parameter for main() in displayregion.py and the code will 
 run creating images that are 0.25 square degrees for the entire sky. The images are
 produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
 [coords]
+
 Type "'Allskyparams'" as the parameter for main() in displayregion.py and the code 
 will create an image centered on the coordinates given in the config.ini file. Currently
 does not work for automation or multiple inputs at the same time. The images are
 produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
 [noregion]
+
 Type "'noregion'" as the parameter for main() in displayregion.py and the code with
 create a catalog containing no HII Regions in 0.25 square degree images of a subsection
 of the sky. This subsection is (308,0) to (312,2) in galactic longitude and latitude.
 The images are produced using the WISE Catalog in the 3.4, 12, and 22 micron filters.
 
 [knownregion]
+
 Type "'knownregion'" as the parameter for main() in displayregion.py and the code will
 create a catalog of images for the HII Regions given in the "gname" parameter spot of 
 the config.ini file. These images are also 1 degree of galactic longitude by 1 degree
@@ -65,11 +70,13 @@ of galactic latitude. The images are produced using the WISE Catalog in the 3.4,
 HII Regions in the WISE Catalog.
 
 [SNRcatalog]
+
 Type "'SNRcatalog'" as the parameter for main() in displayregion.py and the code will
 create a catalog of images for the Supernova Remnants given in the "gname" parameter 
 spot of the config.ini file. Works the same as [knownregion].
 
 [PNecatalog]
+
 Type "'PNecatalog'" as the parameter for main() in displayregion.py and the code will
 create a catalog of images for the Planetary Nebulae given in the "gname" parameter 
 spot of the config.ini file. Works the same as [knownregion] and [SNRcatalog].
