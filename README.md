@@ -2,11 +2,11 @@
 Creating a deep learning algorithm with the goal of identifying HII Regions in
 the WISE Catalog.
 
-configcreator.py creates the config.ini file that can be read into to a script
+[configcreator.py](https://github.com/aydanmckay/ASTR490/blob/main/ml/configcreator.py) creates the config.ini file that can be read into to a script
 containing all of the parameters required to build a catalog of images for the
 machine learning (ML) code to use as the test catalog.
 
-config.ini contains multiple sections for the different ways to produce images. 
+[config.ini](https://github.com/aydanmckay/ASTR490/blob/main/ml/config.ini) contains multiple sections for the different ways to produce images. 
 The options are producing a catalog of the entire sky without specifying what
 is contained in the images, a catalog of a subsection of the sky without specifying
 what is contained in the images, a catalog of known HII Regions, a catalog of 
@@ -18,7 +18,7 @@ The config.ini file will need to be updated to match the directory of the locati
 of the database ("'db'") and the output directory ("'outputdir'") for the device it
 is running on.
 
-displayregion.py implements the config.ini file to create either the singular image
+[displayregion.py](https://github.com/aydanmckay/ASTR490/blob/main/ml/displayregion.py) implements the config.ini file to create either the singular image
 or catalog of images to be used as the train/test/dev set by the ML code. The actual
 pixel values for flux can be returned in the form of .fits files, and a 3-color image
 is returned in the form of a .png file.
@@ -27,13 +27,11 @@ runner.py has been removed and now displayregion.py can be used by itself callin
 parameters from the command line pointing to where the config.ini file is and the
 section of the config.ini file wished to be used to create a catalog.
 
-SNRcatalog.tsv is a catalog of supernova remnants from the paper "A revised 
-catalogue of 294 Galactic supernova remnants (Green, 2019)" accessed through VizieR.
-(https://ui.adsabs.harvard.edu/abs/2019JApA...40...36G/abstract )
+[SNRcatalog.tsv](https://github.com/aydanmckay/ASTR490/blob/main/SNRcatalog.tsv) is a catalog of supernova remnants from the paper "[A revised 
+catalogue of 294 Galactic supernova remnants (Green, 2019)](https://ui.adsabs.harvard.edu/abs/2019JApA...40...36G/abstract)" accessed through VizieR.
 
-PNecatalog.tsv is a catalog of planetary nebulae from the paper "Version 2000 of the
-Catalogue of Galactic Planetary Nebulae" accessed through VizieR.
-(https://ui.adsabs.harvard.edu/abs/2001A%26A...378..843K/abstract )
+[PNecatalog.tsv](https://github.com/aydanmckay/ASTR490/blob/main/PNecatalog.tsv) is a catalog of planetary nebulae from the paper "[Version 2000 of the
+Catalogue of Galactic Planetary Nebulae](https://ui.adsabs.harvard.edu/abs/2001A%26A...378..843K/abstract)" accessed through VizieR.
 
 [baseparams]
 Type "'baseparams'" as the parameter for main() in displayregion.py and the code will
