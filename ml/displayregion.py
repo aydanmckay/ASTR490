@@ -2,7 +2,7 @@
 """
 Created on Wed Jun 16 17:05:00 2021
 
-@author: aydan
+@author: Aydan McKay
 """
 
 import os
@@ -209,16 +209,14 @@ def knownreg(db, outfile, catalogs, gname, imsize, section):
         ax.imshow(image, origin="lower", interpolation="none")
         ax.set_xlabel("RA (J2000)")
         ax.set_ylabel("Declination (J2000)")
-        # get pixel position of the WISE Catalog source
 # =============================================================================
-    #     xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
-    #     # commented out the circle being drawn around the region
-    #     base on the wise_demo.py precursor file
-    #     radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
-    #     circle = Circle(
-    #         (xpos, ypos), radius, fill=False,
-    #         linestyle="dashed", color="yellow")
-    #     ax.add_artist(circle)
+#       get pixel position of the WISE Catalog source
+#       xpos, ypos = wcs.wcs_world2pix(row["ra"], row["dec"], 1)
+#       radius = row["radius"] / 3600.0 / wise_3.header["CDELT2"]
+#       circle = Circle(
+#           (xpos, ypos), radius, fill=False,
+#           linestyle="dashed", color="yellow")
+#       ax.add_artist(circle)
 # =============================================================================
         fig.savefig(outfile+name+'_wise.png', bbox_inches="tight")
         plt.close(fig)
@@ -352,13 +350,10 @@ def main(section,config_location):
     #Read config.ini file
     clock = time.time()
     config_object = ConfigParser()
-    config_object_file = config_location
-    config_object.read(config_object_file)
-    config = config_object[section] #######################################
+    config_object.read(config_location)
+    config = config_object[section]
     dims = [float(config['imsize']),float(config['imsize'])]
     catalogs = config['catalogs'].split(',')
-    # catalogs may break if only one catalog is given in the
-    # config.ini file
     
     # Creating the catalog of known HII Regions
     if (section == 'knownregion') or (section == 'PNecatalog') or (section == 'SNRcatalog'):
@@ -435,17 +430,18 @@ def main(section,config_location):
                 continue
         
             # Clip and scale infrared data
-            
-            # Determining if there is missing data in the form of NaNs in the
-            # hdu.datas, particularly the 12 and 22 micron frames.
             frames = []
+            
             for it,hdu in enumerate(hdu_list[::-1]):
+                # Unused method of replacing the NaNs in data with a constant
                 # hdu.data = np.where(np.isnan(hdu.data),10000,hdu.data)
+                
                 frames.append(scale(hdu.data, 10.0, 95.0))
+                
+                # Just a sanity check on which images contained NaNs.
                 # for num,i in enumerate(hdu.data[0]):
                 #     if np.isnan(i):
                 #         print('listnumber:',it,'index:',num)
-            # frames = [scale(hdu.data, 10.0, 99.0) for hdu in hdu_list[::-1]]
             image = np.stack(frames, axis=-1)
         
             # Generate figure
@@ -462,15 +458,13 @@ def main(section,config_location):
     
 if __name__ == '__main__':
 # =============================================================================
-#     Code to run displayregion.py
+#     Code to run displayregion.py from author's database example:
 #     python displayregion.py 'D:/githubfiles/ASTR490/ml/config.ini' noregion
+# 
+#     Where
+# 
+#     str(sys.argv[1]) = 'D:/githubfiles/ASTR490/ml/config.ini'
+#     str(sys.argv[2]) = e.g. noregion, baseparams, etc. 
 # =============================================================================
-    
-    # str(sys.argv[1]) = 'D:/githubfiles/ASTR490/ml/config.ini'
-    # str(sys.argv[2]) = e.g. noregion, baseparams, etc. 
 
     main(str(sys.argv[2]),str(sys.argv[1]))
-    
-# argparse package
-
-# PNe or SNe catalogs may be read in scripts, will have to look into that

@@ -119,7 +119,7 @@ def main():
         # can be equal to 'all' or as above (knownregion)
         # PNe catalog has space at the end of most names, add
         # a comma after even if last name in list
-        'gname': '130+01.1 ,198-06.1 ,240-07.1 ,',
+        'gname': '060-03.1 ,198-06.1 ,240-07.1 ,',
         'glong': '361', 
         'glat': '0',
         'catalogs': 'WISE 3.4,WISE 12,WISE 22'
