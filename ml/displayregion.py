@@ -321,12 +321,12 @@ def noregion(ra,dec,wise_catalog,imsize):
     
     # If in the frame return 'Regions', otherwise 'Good'
     if len(rows) > 0:
-        print('Regions in frame')
+        print('\nRegions in frame')
         print(rows)
-        print(ra,' ',dec,'\n')
+        print(ra,' ',dec)
         return 'Regions'
     else:
-        print('No Regions in frame\n')
+        print('\nNo Regions in frame')
         return 'Good'
 
 def main(section,config_location):
